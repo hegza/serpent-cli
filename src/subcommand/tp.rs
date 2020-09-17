@@ -15,7 +15,7 @@ pub type Result<T> = std::result::Result<T, CliError>;
 /// Create the clap subcommand for `tp`.
 pub fn app() -> clap::App<'static, 'static> {
     clap::SubCommand::with_name(name()).alias("tp")
-        .about("transpiles INPUTS which are files or modules")
+        .about("Transpiles INPUT which is a file or a module.")
         .arg(
             clap::Arg::with_name("INPUT")
                 .help("Sets the input module or file to transpile")
@@ -25,6 +25,7 @@ pub fn app() -> clap::App<'static, 'static> {
         .arg(
             clap::Arg::with_name("lines")
                 .long("lines")
+                .short("l")
                 .help("Add line numbers to output"),
         )
         .arg(
@@ -92,7 +93,10 @@ fn do_work(cfg: &Config) -> Result<()> {
                 Some(out_file) => {
                     if let TranspileUnit::File(path) = out_file {
                         // Create file
-                        let mut file = fs::File::create(path)?;
+                        let mut file = fs::OpenOptions::new()
+                            .write(true)
+                            .create(true)
+                            .open(&path)?;
                         // Output into file
                         println!("Writing into {:?}", &path);
                         file.write_all(transpiled.as_bytes())?;
@@ -131,12 +135,21 @@ fn do_work(cfg: &Config) -> Result<()> {
                 };
                 // Create the output directory
                 let mod_out_path = Path::new(out_path);
-                fs::create_dir(mod_out_path)?;
+                if !mod_out_path.exists() {
+                    fs::create_dir(mod_out_path)?;
+                }
+                let src_out_path = mod_out_path.join("src");
+                if !src_out_path.exists() {
+                    fs::create_dir(src_out_path)?;
+                }
 
                 // Translate output file names and output
                 for (in_path, transpiled) in transpiled_files {
                     let out_path = translate(in_path, mod_in_path, mod_out_path);
-                    let mut file = fs::File::create(&out_path)?;
+                    let mut file = fs::OpenOptions::new()
+                        .write(true)
+                        .create(true)
+                        .open(&out_path)?;
                     // Output into file
                     println!("Writing into {:?}", &out_path);
                     file.write_all(transpiled.as_bytes())?;
@@ -174,7 +187,8 @@ fn add_line_nbs(s: &str) -> String {
         .join("\n")
 }
 
-/// Replaces `from_stem` in `path` with `to_stem` and swaps ".py" into ".rs"
+/// Replaces `from_stem` in `path` with `to_stem`, adds 'src/' and swaps ".py"
+/// into ".rs"
 fn translate(path: &Path, from_stem: &Path, to_stem: &Path) -> PathBuf {
     // Verify that the translation parameters are correct
     debug_assert!(path.starts_with(from_stem));
@@ -183,5 +197,7 @@ fn translate(path: &Path, from_stem: &Path, to_stem: &Path) -> PathBuf {
     let relative = path.strip_prefix(from_stem).unwrap();
     let rs = relative.with_extension("rs");
 
-    to_stem.join(rs)
+    // TODO: maybe replace "__init__" in filename with "lib" or "main"
+
+    to_stem.join("src").join(rs)
 }

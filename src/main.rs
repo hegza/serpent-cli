@@ -2,7 +2,7 @@ mod error;
 mod subcommand;
 
 use crate::error::CliError;
-use clap::{App, Arg, SubCommand};
+use clap::{App, AppSettings};
 
 use std::fs::metadata;
 use std::path::{Path, PathBuf};
@@ -20,45 +20,10 @@ fn main() {
         .version(PKG_VERSION)
         .author(PKG_AUTHORS)
         .about(PKG_DESCRIPTION)
-        .arg(
-            Arg::with_name("v")
-                .short("v")
-                .multiple(true)
-                .help("Sets the level of verbosity"),
-        )
-        .subcommand(
-            SubCommand::with_name("test")
-                .about("controls testing features")
-                .version("1.3")
-                .author("Someone E. <someone_else@other.com>")
-                .arg(
-                    Arg::with_name("debug")
-                        .short("d")
-                        .help("print debug information verbosely"),
-                ),
-        )
         .subcommand(subcommand::steps::app())
         .subcommand(subcommand::tp::app())
+        .setting(AppSettings::SubcommandRequiredElseHelp)
         .get_matches();
-
-    // Vary the output based on how many times the user used the "verbose" flag
-    // (i.e. 'myprog -v -v -v' or 'myprog -vvv' vs 'myprog -v'
-    match matches.occurrences_of("v") {
-        0 => println!("No verbose info"),
-        1 => println!("Some verbose info"),
-        2 => println!("Tons of verbose info"),
-        3 | _ => println!("Don't be crazy"),
-    }
-
-    // You can handle information about subcommands by requesting their matches by
-    // name (as below), requesting just the name used, or both at the same time
-    if let Some(matches) = matches.subcommand_matches("test") {
-        if matches.is_present("debug") {
-            println!("Printing debug info...");
-        } else {
-            println!("Printing normally...");
-        }
-    }
 
     if let Some(matches) = matches.subcommand_matches(subcommand::steps::name()) {
         subcommand::steps::run(&matches).unwrap();

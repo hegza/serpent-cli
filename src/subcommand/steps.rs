@@ -12,7 +12,7 @@ pub type Result<T> = std::result::Result<T, CliError>;
 /// Create the clap subcommand for `steps`.
 pub fn app() -> clap::App<'static, 'static> {
     clap::SubCommand::with_name(name())
-        .about("shows transpilation steps for a line in INPUT, which is a module or a file")
+        .about("Shows transpilation steps for a line in INPUT, which is a module or a file.")
         .arg(
             clap::Arg::with_name("INPUT")
                 .help("Sets the input file to use")
