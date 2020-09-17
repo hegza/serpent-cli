@@ -388,15 +388,6 @@ checksum = "cd56b59865bce947ac5958779cfa508f6c3b9497cc762b7e24a12d11ccde2c4f"
 
 [[package]]
 name = "ena"
-version = "0.13.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8944dc8fa28ce4a38f778bd46bf7d923fe73eed5a439398507246c8e017e6f36"
-dependencies = [
- "log 0.4.11",
-]
-
-[[package]]
-name = "ena"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d7402b94a93c24e742487327a7cd839dc9d36fec9de9fb25b09f2dae459f36c3"
@@ -448,9 +439,9 @@ checksum = "e88a8acf291dafb59c2d96e8f59828f3838bb1a70398823ade51a84de6a6deed"
 
 [[package]]
 name = "fixedbitset"
-version = "0.1.9"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "86d4de0081402f5e88cdac65c8dcdcc73118c1a7a465e2a05f0da05843a8ea33"
+checksum = "37ab347416e802de484e4d03c7316c48f1ecb56574dfd4a46a80f173ce1de04d"
 
 [[package]]
 name = "fuchsia-cprng"
@@ -535,15 +526,6 @@ checksum = "5b141fdc7836c525d4d594027d318c84161ca17aaf8113ab1f81ab93ae897485"
 
 [[package]]
 name = "itertools"
-version = "0.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f56a2d0bc861f9165be4eb3442afd3c236d8a98afd426f65d92324ae1091a484"
-dependencies = [
- "either",
-]
-
-[[package]]
-name = "itertools"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "284f18f85651fe11e8a991b2adb42cb078325c996ed026d994719efcfca1d54b"
@@ -578,17 +560,17 @@ dependencies = [
 
 [[package]]
 name = "lalrpop"
-version = "0.17.2"
+version = "0.19.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64dc3698e75d452867d9bd86f4a723f452ce9d01fe1d55990b79f0c790aa67db"
+checksum = "60fb56191fb8ed5311597e5750debe6779c9fdb487dbaa5ff302592897d7a2c8"
 dependencies = [
  "ascii-canvas",
  "atty",
  "bit-set",
  "diff",
  "docopt",
- "ena 0.13.1",
- "itertools 0.8.2",
+ "ena",
+ "itertools",
  "lalrpop-util",
  "petgraph",
  "regex 1.3.9",
@@ -598,14 +580,14 @@ dependencies = [
  "sha2",
  "string_cache",
  "term 0.5.2",
- "unicode-xid 0.1.0",
+ "unicode-xid 0.2.1",
 ]
 
 [[package]]
 name = "lalrpop-util"
-version = "0.17.2"
+version = "0.19.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c277d18683b36349ab5cd030158b54856fca6bb2d5dc5263b06288f486958b7c"
+checksum = "6771161eff561647fad8bb7e745e002c304864fb8f436b52b30acda51fca4408"
 
 [[package]]
 name = "lazy_static"
@@ -732,9 +714,9 @@ checksum = "61807f77802ff30975e01f4f071c8ba10c022052f98b3294119f3e615d13e5be"
 
 [[package]]
 name = "num-bigint"
-version = "0.2.6"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "090c7f9998ee0ff65aa5b723e4009f7b217707f1fb5ea551329cc4d6231fb304"
+checksum = "b7f3fc75e3697059fb1bc465e3d8cca6cf92f56854f201158b3f9c77d5a3cfa0"
 dependencies = [
  "autocfg 1.0.1",
  "num-integer",
@@ -790,12 +772,6 @@ name = "opaque-debug"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2839e79665f131bdb5782e51f2c6c9599c133c6098982a54c794358bf432529c"
-
-[[package]]
-name = "ordermap"
-version = "0.3.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a86ed3f5f244b372d6b1a00b72ef7f8876d0bc6a78a4c9985c53614041512063"
 
 [[package]]
 name = "parking_lot"
@@ -875,29 +851,19 @@ dependencies = [
 
 [[package]]
 name = "petgraph"
-version = "0.4.13"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c3659d1ee90221741f65dd128d9998311b0e40c5d3c23a62445938214abce4f"
+checksum = "467d164a6de56270bd7c4d070df81d07beace25012d5103ced4e9ff08d6afdb7"
 dependencies = [
  "fixedbitset",
- "ordermap",
-]
-
-[[package]]
-name = "phf_generator"
-version = "0.7.24"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09364cc93c159b8b06b1f4dd8a4398984503483891b0c26b867cf431fb132662"
-dependencies = [
- "phf_shared",
- "rand 0.6.5",
+ "indexmap",
 ]
 
 [[package]]
 name = "phf_shared"
-version = "0.7.24"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "234f71a15de2288bcb7e3b6515828d22af7ec8598ee6d24c3b526fa0a80b67a0"
+checksum = "c00cf8b9eafe68dde5e9eaa2cef8ee84a9336a47d566ec55ca16589633b65af7"
 dependencies = [
  "siphasher",
 ]
@@ -1220,6 +1186,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "rustc-ap-rustc_ast_pretty"
+version = "673.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c5ecf1928ecde47c0a7361c6a358c0c5601993b5d01e6e6340b0c3ba51952e40"
+dependencies = [
+ "rustc-ap-rustc_ast",
+ "rustc-ap-rustc_span",
+ "rustc-ap-rustc_target",
+ "tracing",
+]
+
+[[package]]
 name = "rustc-ap-rustc_data_structures"
 version = "673.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1228,7 +1206,7 @@ dependencies = [
  "bitflags 1.2.1",
  "cfg-if",
  "crossbeam-utils 0.7.2",
- "ena 0.14.0",
+ "ena",
  "indexmap",
  "jobserver",
  "lazy_static",
@@ -1317,6 +1295,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "rustc-ap-rustc_target"
+version = "673.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ab855d271ed80ef090fac4a8bcbc910b0f300d56a44f5ed6239675b33991cf6b"
+dependencies = [
+ "bitflags 1.2.1",
+ "rustc-ap-rustc_data_structures",
+ "rustc-ap-rustc_index",
+ "rustc-ap-rustc_macros",
+ "rustc-ap-rustc_serialize",
+ "rustc-ap-rustc_span",
+ "tracing",
+]
+
+[[package]]
 name = "rustc-demangle"
 version = "0.1.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1389,8 +1382,6 @@ dependencies = [
 [[package]]
 name = "rustpython-parser"
 version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d85b1038ecd8791bdae455ae784b48f522ebeca1b3323d0af2b251c5c8ff1c68"
 dependencies = [
  "lalrpop",
  "lalrpop-util",
@@ -1474,13 +1465,14 @@ dependencies = [
  "color-backtrace",
  "ctor",
  "derive_deref",
- "itertools 0.9.0",
+ "itertools",
  "lazy_static",
  "log 0.4.11",
  "normalize-line-endings",
  "num-bigint",
  "pretty_env_logger",
  "rustc-ap-rustc_ast",
+ "rustc-ap-rustc_ast_pretty",
  "rustc-ap-rustc_data_structures",
  "rustc-ap-rustc_span",
  "rustfmt",
@@ -1494,7 +1486,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
- "itertools 0.9.0",
+ "itertools",
  "rustc-ap-rustc_span",
  "serpent",
  "thiserror",
@@ -1526,9 +1518,9 @@ dependencies = [
 
 [[package]]
 name = "siphasher"
-version = "0.2.3"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b8de496cf83d4ed58b6be86c3a275b8602f6ffe98d3024a869e124147a9a3ac"
+checksum = "fa8f3741c7372e75519bd9346068370c9cdaabcc1f9599cbcf2a2719352286b7"
 
 [[package]]
 name = "smallvec"
@@ -1566,37 +1558,16 @@ dependencies = [
 
 [[package]]
 name = "string_cache"
-version = "0.7.5"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "89c058a82f9fd69b1becf8c274f412281038877c553182f1d02eb027045a2d67"
+checksum = "2940c75beb4e3bf3a494cef919a747a2cb81e52571e212bfbd185074add7208a"
 dependencies = [
  "lazy_static",
  "new_debug_unreachable",
  "phf_shared",
  "precomputed-hash",
  "serde",
- "string_cache_codegen",
- "string_cache_shared",
 ]
-
-[[package]]
-name = "string_cache_codegen"
-version = "0.4.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0f45ed1b65bf9a4bf2f7b7dc59212d1926e9eaf00fa998988e420fd124467c6"
-dependencies = [
- "phf_generator",
- "phf_shared",
- "proc-macro2",
- "quote",
- "string_cache_shared",
-]
-
-[[package]]
-name = "string_cache_shared"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1884d1bc09741d466d9b14e6d37ac89d6909cbcac41dd9ae982d4d063bbedfc"
 
 [[package]]
 name = "strings"

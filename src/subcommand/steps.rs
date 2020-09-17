@@ -6,8 +6,6 @@ use crate::{generate_target, TranspileUnit};
 use std::fs::metadata;
 use std::path::{Path, PathBuf};
 
-use rustc_ap_rustc_span::with_default_session_globals;
-
 /// A type alias for `Result<T, crate::error::CliError>`.
 pub type Result<T> = std::result::Result<T, CliError>;
 
@@ -49,6 +47,12 @@ fn resolve_args(matches: &clap::ArgMatches) -> Result<Config> {
     // Calling .unwrap() is safe here because "INPUT" is required
     let input = matches.value_of("INPUT").unwrap();
 
+    // Verify existence
+    let path = Path::new(input);
+    if !path.exists() || !metadata(path).unwrap().is_file() {
+        return Err(CliError::PathIsDirectory(input.to_owned()));
+    }
+
     let module_opt = matches.value_of("module");
 
     // Generate the target that needs to be transpiled to get desired output
@@ -77,14 +81,7 @@ fn resolve_args(matches: &clap::ArgMatches) -> Result<Config> {
                 }
             }
         }
-        None => {
-            // Verify existence
-            if !Path::new(input).exists() {
-                return Err(CliError::FileOrDirectoryNotFound(input.to_owned()));
-            }
-
-            None
-        }
+        None => None,
     };
 
     // Calling .unwrap() is safe here because "line" is required
@@ -131,10 +128,10 @@ fn do_work(cfg: &Config) -> Result<()> {
         }
     }?;
 
-    println!("{}:\n{:?}\n", "Python source", trace[0]);
+    println!("{}:\n{}\n", "Python source", trace[0]);
     println!("{}:\n{:?}\n", "Python AST", trace[1]);
     println!("{}:\n{:?}\n", "Rust AST", trace[2]);
-    println!("{}:\n{:?}\n", "Rust source", trace[3]);
+    println!("{}:\n{}\n", "Rust source", trace[3]);
 
     Ok(())
 }

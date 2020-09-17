@@ -21,14 +21,6 @@ fn main() {
         .author(PKG_AUTHORS)
         .about(PKG_DESCRIPTION)
         .arg(
-            Arg::with_name("config")
-                .short("c")
-                .long("config")
-                .value_name("FILE")
-                .help("Sets a custom config file")
-                .takes_value(true),
-        )
-        .arg(
             Arg::with_name("v")
                 .short("v")
                 .multiple(true)
@@ -48,9 +40,6 @@ fn main() {
         .subcommand(subcommand::steps::app())
         .subcommand(subcommand::tp::app())
         .get_matches();
-
-    // Gets a value for config if supplied by user, or defaults to "default.conf"
-    let config = matches.value_of("config").unwrap_or("default.conf");
 
     // Vary the output based on how many times the user used the "verbose" flag
     // (i.e. 'myprog -v -v -v' or 'myprog -vvv' vs 'myprog -v'
@@ -80,7 +69,9 @@ fn main() {
     }
 }
 
-#[derive(Debug)]
+/// Represents something that can be the input or an output of a transpilation
+/// process eg. a directory / module, file or a string.
+#[derive(Debug, Clone)]
 pub enum TranspileUnit {
     File(PathBuf),
     Module(PathBuf),
@@ -93,14 +84,19 @@ impl TranspileUnit {
             TranspileUnit::Module(path) => &path,
         }
     }
+
+    pub fn is_dir(&self) -> bool {
+        match self {
+            TranspileUnit::File(_) => false,
+            TranspileUnit::Module(_) => true,
+        }
+    }
 }
 
+/// Generates a transpile target from given input. Input can be a file or a
+/// directory. Directories become module targets and files become file targets.
 pub fn generate_target(input: &str) -> Result<TranspileUnit> {
-    let path = Path::new(input);
-
-    if !path.exists() {
-        return Err(CliError::FileOrDirectoryNotFound(input.to_owned()));
-    }
+    let path = to_path(input)?;
 
     // Unwrapping here is safe because we have verified that the file exists
     let md = metadata(path).unwrap();
@@ -112,4 +108,47 @@ pub fn generate_target(input: &str) -> Result<TranspileUnit> {
         // A path that exists is either a file or a directory
         unreachable!()
     }
+}
+
+/// Maps the input string to an existing directory path
+pub fn to_dir_path_buf(input: &str) -> Result<PathBuf> {
+    let path = to_path(input)?;
+
+    // Unwrapping here is safe because we have verified that the file exists
+    let md = metadata(path).unwrap();
+    if md.is_dir() {
+        Ok(path.to_path_buf())
+    } else if md.is_file() {
+        Err(CliError::PathIsFile(input.to_owned()))
+    } else {
+        // A path that exists is either a file or a directory
+        unreachable!()
+    }
+}
+
+/// Maps the input string to an existing file path
+pub fn to_file_path_buf(input: &str) -> Result<PathBuf> {
+    let path = to_path(input)?;
+
+    // Unwrapping here is safe because we have verified that the file exists
+    let md = metadata(path).unwrap();
+    if md.is_dir() {
+        Err(CliError::PathIsDirectory(input.to_owned()))
+    } else if md.is_file() {
+        Ok(path.to_path_buf())
+    } else {
+        // A path that exists is either a file or a directory
+        unreachable!()
+    }
+}
+
+/// Maps the input to an existing path.
+pub fn to_path(input: &str) -> Result<&Path> {
+    let path = Path::new(input);
+
+    if !path.exists() {
+        return Err(CliError::FileOrDirectoryNotFound(input.to_owned()));
+    }
+
+    Ok(path)
 }
