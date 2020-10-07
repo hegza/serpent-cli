@@ -2076,6 +2076,7 @@ dependencies = [
  "rustfmt",
  "rustpython-parser",
  "thiserror",
+ "toml 0.5.6",
 ]
 
 [[package]]
