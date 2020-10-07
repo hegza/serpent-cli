@@ -10,9 +10,15 @@ path = "src/main.rs"
 
 [dependencies]
 serpent = { path = "../serpent" }
-clap = "^2.33"
-thiserror = "^1.0"
-anyhow = "^1.0"
 # Must match with rustc_ast version in serpent: "673.0.0"
 rustc-ap-rustc_span = "673.0.0"
+
+clap = "^2.33"
+thiserror = "^1.0"
+anyhow = "1.0.32"
 itertools = "0.9.0"
+cargo = "0.47.0"
+log = "0.4.11"
+flexi_logger = "0.16.1"
+fs-err = "2.5.0"
+toml = "0.5.6"
