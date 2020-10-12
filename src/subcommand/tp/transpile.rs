@@ -1,4 +1,4 @@
-use super::{Config, Result};
+use super::{cargo_util, Config, Result};
 use crate::{error::CliError, TranspileUnit};
 use fs_err as fs;
 use itertools::Itertools;
@@ -157,20 +157,12 @@ pub fn transpile_module(
 
         // Create a manifest
         if cfg.create_manifest {
-            let manifest_path = mod_out_path.join("Cargo.toml");
-            if manifest_path.exists() {
-                if cfg.overwrite_manifest {
-                    info!("{:?} already exists, deleting previous", &manifest_path);
-                    fs::remove_file(&manifest_path)?;
-                } else {
-                    info!(
-                        "{:?} already exists, skipping because overwrite_manifest = false",
-                        &manifest_path
-                    );
-                }
-            }
-            info!("Writing manifest into {:?}", &manifest_path);
-            emit_manifest(mod_out_path, has_bin_target, has_lib_target)?;
+            cargo_util::create_manifest(
+                &mod_out_path,
+                cfg.overwrite_manifest,
+                has_bin_target,
+                has_lib_target,
+            )?;
         }
     }
     // Output in terminal
@@ -208,29 +200,6 @@ fn add_line_nbs(s: &str) -> String {
             format!("{} {}", line_no, line,)
         })
         .join("\n")
-}
-
-fn emit_manifest(path: &path::Path, has_bin_target: bool, has_lib_target: bool) -> Result<()> {
-    let path = path.canonicalize()?;
-
-    let opts = cargo::ops::NewOptions::new(
-        Some(cargo::ops::VersionControl::NoVcs),
-        has_bin_target,
-        has_lib_target,
-        path.to_path_buf(),
-        None,
-        Some(String::from("2018")),
-        None,
-    )
-    .map_err(|err| CliError::CargoError(err))?;
-
-    cargo::ops::init(
-        &opts,
-        &cargo::Config::default().map_err(|err| CliError::CargoError(err))?,
-    )
-    .map_err(|err| CliError::CargoError(err))?;
-
-    Ok(())
 }
 
 fn write_file<P>(path: P, contents: &str) -> Result<()>

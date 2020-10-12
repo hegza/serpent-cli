@@ -1,4 +1,5 @@
 //! Subcommand for transpiling files or modules.
+mod cargo_util;
 mod transpile;
 
 use self::transpile::*;
