@@ -1,15 +1,18 @@
-use super::Result;
 use crate::error::CliError;
+
+use super::Result;
 use fs_err as fs;
 use log::info;
+use toml::{map::Map as TomlMap, Value as TomlValue};
 
 use std::path;
 
 pub fn create_manifest(
     path: impl AsRef<path::Path>,
     overwrite_previous: bool,
-    has_bin_target: bool,
-    has_lib_target: bool,
+    deps: Option<&TomlMap<String, TomlValue>>,
+    bin_target: Option<impl AsRef<path::Path>>,
+    lib_target: Option<impl AsRef<path::Path>>,
 ) -> Result<()> {
     let path = path.as_ref();
     let manifest_path = path.join("Cargo.toml");
@@ -25,28 +28,78 @@ pub fn create_manifest(
         }
     }
     info!("Writing manifest into {:?}", &manifest_path);
-    emit_manifest(path, has_bin_target, has_lib_target)
+    emit_manifest(&manifest_path, deps, bin_target, lib_target)
 }
 
-pub fn emit_manifest(path: &path::Path, has_bin_target: bool, has_lib_target: bool) -> Result<()> {
-    let path = path.canonicalize()?;
+pub fn emit_manifest(
+    manifest_filepath: &path::Path,
+    deps: Option<&TomlMap<String, TomlValue>>,
+    bin_target: Option<impl AsRef<path::Path>>,
+    lib_target: Option<impl AsRef<path::Path>>,
+) -> Result<()> {
+    use cargo_toml_builder::prelude::*;
 
-    let opts = cargo::ops::NewOptions::new(
-        Some(cargo::ops::VersionControl::NoVcs),
-        has_bin_target,
-        has_lib_target,
-        path.to_path_buf(),
-        None,
-        Some(String::from("2018")),
-        None,
-    )
-    .map_err(|err| CliError::CargoError(err))?;
+    let mut cargo_toml = CargoToml::builder();
+    cargo_toml.author("automatically transpiled by serpent");
 
-    cargo::ops::init(
-        &opts,
-        &cargo::Config::default().map_err(|err| CliError::CargoError(err))?,
-    )
-    .map_err(|err| CliError::CargoError(err))?;
+    // Generate a name
+    let name = format!(
+        "{}",
+        manifest_filepath
+            .parent()
+            .unwrap()
+            .file_stem()
+            .unwrap()
+            .to_str()
+            .unwrap(),
+    );
+    cargo_toml.name(&name);
 
-    Ok(())
+    if let Some(deps) = deps {
+        let deps = toml_into_deps(deps)?;
+        cargo_toml.dependencies(&deps);
+    }
+
+    // Add bin target
+    if let Some(target_path) = bin_target {
+        let target_path = target_path.as_ref();
+
+        // Extract stem as target name
+        let name = target_path.file_stem().unwrap().to_str().unwrap();
+
+        let target = BinTarget::new()
+            .name(name)
+            .path(target_path.to_str().unwrap())
+            .build();
+        cargo_toml.bin(target);
+    }
+
+    // Add lib target
+    if let Some(target_path) = lib_target {
+        let target_path = target_path.as_ref();
+
+        // Extract stem as target name
+        let name = target_path.file_stem().unwrap().to_str().unwrap();
+
+        let target = LibTarget::new()
+            .name(name)
+            .path(target_path.to_str().unwrap())
+            .build();
+        cargo_toml.lib(target);
+    }
+
+    let content = format!("{}", cargo_toml.build()?);
+
+    use super::write_file;
+    write_file(manifest_filepath, &content)
+}
+
+use cargo_toml_builder::types::Dependency;
+fn toml_into_deps(toml: &TomlMap<String, TomlValue>) -> Result<Vec<Dependency>> {
+    toml.iter()
+        .map(|(key, value)| match value {
+            TomlValue::String(version) => Ok(Dependency::version(key, version)),
+            val => return Err(CliError::TomlContentError(val.clone(), "String")),
+        })
+        .collect::<Result<Vec<Dependency>>>()
 }

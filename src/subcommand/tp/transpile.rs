@@ -1,4 +1,4 @@
-use super::{cargo_util, Config, Result};
+use super::{cargo_util, write_file, Config, Result};
 use crate::{error::CliError, TranspileUnit};
 use fs_err as fs;
 use itertools::Itertools;
@@ -9,35 +9,7 @@ use serpent::{
 };
 use toml::{map::Map as TomlMap, value::Value as TomlValue};
 
-use std::{io::Write, path};
-
-fn read_remap_file(
-    path: impl AsRef<path::Path>,
-) -> Result<(TomlMap<String, TomlValue>, TomlMap<String, TomlValue>)> {
-    let path = path.as_ref();
-    let remap_file = fs::read_to_string(path)?;
-
-    let mut deps_and_remaps = match remap_file.parse::<TomlValue>()? {
-        TomlValue::Table(table) => table,
-        value => {
-            error!("The remap-toml file has to parse into a table.");
-            return Err(CliError::TomlContentError(value, "table"));
-        }
-    };
-
-    let deps = match deps_and_remaps
-        .remove("dependencies")
-        .expect("dependencies not found in remap file")
-    {
-        TomlValue::Table(table) => table,
-        value => {
-            return Err(CliError::TomlContentError(value, "table"));
-        }
-    };
-    let remaps: TomlMap<String, TomlValue> = deps_and_remaps.into();
-
-    Ok((deps, remaps))
-}
+use std::path;
 
 pub fn do_work(cfg: &Config) -> Result<()> {
     let t_cfg = TranspileConfig::default();
@@ -89,11 +61,11 @@ pub fn transpile_module(
 
     let mut builder = TranspileModuleBuilder::new(&module_input_path).config(t_cfg);
 
-    if let Some(dep_map) = deps {
-        builder = builder.set_dep_map(dep_map);
+    if let Some(ref dep_map) = deps {
+        builder = builder.set_dep_map(dep_map.clone());
     }
-    if let Some(remap) = remap {
-        builder = builder.set_remap(remap);
+    if let Some(ref remap) = remap {
+        builder = builder.set_remap(remap.clone());
     }
 
     let mut transpiled = builder.transpile()?;
@@ -125,8 +97,8 @@ pub fn transpile_module(
             fs::create_dir(src_out_path)?;
         }
 
-        let mut has_bin_target = false;
-        let mut has_lib_target = false;
+        let mut bin_target = None;
+        let mut lib_target = None;
 
         // Translate output file names and output
         for TranspiledFile {
@@ -141,11 +113,11 @@ pub fn transpile_module(
             match kind {
                 TranspiledFileKind::LibRs => {
                     out_path.set_file_name("lib.rs");
-                    has_lib_target = true;
+                    lib_target = Some("src/lib.rs");
                 }
                 TranspiledFileKind::MainRs => {
                     out_path.set_file_name("main.rs");
-                    has_bin_target = true;
+                    bin_target = Some("src/main.rs");
                 }
                 _ => {}
             };
@@ -160,8 +132,9 @@ pub fn transpile_module(
             cargo_util::create_manifest(
                 &mod_out_path,
                 cfg.overwrite_manifest,
-                has_bin_target,
-                has_lib_target,
+                deps.as_ref(),
+                bin_target,
+                lib_target,
             )?;
         }
     }
@@ -183,6 +156,34 @@ pub fn transpile_module(
     Ok(())
 }
 
+fn read_remap_file(
+    path: impl AsRef<path::Path>,
+) -> Result<(TomlMap<String, TomlValue>, TomlMap<String, TomlValue>)> {
+    let path = path.as_ref();
+    let remap_file = fs::read_to_string(path)?;
+
+    let mut deps_and_remaps = match remap_file.parse::<TomlValue>()? {
+        TomlValue::Table(table) => table,
+        value => {
+            error!("The remap-toml file has to parse into a table.");
+            return Err(CliError::TomlContentError(value, "table"));
+        }
+    };
+
+    let deps = match deps_and_remaps
+        .remove("dependencies")
+        .expect("dependencies not found in remap file")
+    {
+        TomlValue::Table(table) => table,
+        value => {
+            return Err(CliError::TomlContentError(value, "table"));
+        }
+    };
+    let remaps: TomlMap<String, TomlValue> = deps_and_remaps.into();
+
+    Ok((deps, remaps))
+}
+
 fn add_line_nbs(s: &str) -> String {
     let lines = s.lines();
     let line_count = lines.clone().count();
@@ -200,24 +201,6 @@ fn add_line_nbs(s: &str) -> String {
             format!("{} {}", line_no, line,)
         })
         .join("\n")
-}
-
-fn write_file<P>(path: P, contents: &str) -> Result<()>
-where
-    P: AsRef<path::Path>,
-{
-    let path = path.as_ref();
-
-    // Create file
-    let mut file = fs::OpenOptions::new()
-        .write(true)
-        .truncate(true)
-        .create(true)
-        .open(&path)?;
-    // Output into file
-    file.write_all(contents.as_bytes())?;
-
-    Ok(())
 }
 
 /// Replaces `from_stem` in `path` with `to_stem`, adds 'src/' and swaps ".py"

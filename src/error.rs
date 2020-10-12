@@ -18,14 +18,14 @@ pub enum CliError {
     RedundantParameter(String),
     #[error("Transpiler error")]
     SerpentError(#[from] serpent::ApiError),
-    #[error("Cargo error")]
-    CargoError(anyhow::Error),
+    #[error("cargo-toml-builder error")]
+    CargoBuilderError(#[from] cargo_toml_builder::Error),
     #[error("TOML deserialization error")]
     TomlError(#[from] toml::de::Error),
     /// First is input, second is expected, eg. "table"
     #[error("TOML contents are not of expected format {0:?} should be '{}'")]
     TomlContentError(toml::Value, &'static str),
     /// An I/O error that occurred while reading or writing a file.
-    #[error("IO error while reading Python source")]
+    #[error("IO error")]
     Io(#[from] io::Error),
 }

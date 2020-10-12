@@ -5,6 +5,7 @@ mod transpile;
 use self::transpile::*;
 use crate::error::CliError;
 use crate::{generate_target, TranspileUnit};
+use fs_err as fs;
 use log::info;
 
 use std::path;
@@ -164,4 +165,24 @@ fn detect(look_for: &str, in_dir: impl AsRef<path::Path>) -> Result<Option<path:
     } else {
         Ok(None)
     }
+}
+
+pub fn write_file<P>(path: P, contents: &str) -> Result<()>
+where
+    P: AsRef<path::Path>,
+{
+    let path = path.as_ref();
+
+    // Create file
+    let mut file = fs::OpenOptions::new()
+        .write(true)
+        .truncate(true)
+        .create(true)
+        .open(&path)?;
+
+    // Output into file
+    use std::io::Write;
+    file.write_all(contents.as_bytes())?;
+
+    Ok(())
 }
