@@ -7,21 +7,18 @@ use serpent::{
     output::TranspiledFileKind, Transpile, TranspileConfig, TranspileFileBuilder,
     TranspileModuleBuilder, TranspiledFile,
 };
-use toml;
+use toml::{map::Map as TomlMap, value::Value as TomlValue};
 
 use std::{io::Write, path};
 
 fn read_remap_file(
     path: impl AsRef<path::Path>,
-) -> Result<(
-    toml::map::Map<String, toml::Value>,
-    toml::map::Map<String, toml::Value>,
-)> {
+) -> Result<(TomlMap<String, TomlValue>, TomlMap<String, TomlValue>)> {
     let path = path.as_ref();
     let remap_file = fs::read_to_string(path)?;
 
-    let mut deps_and_remaps = match remap_file.parse::<toml::Value>()? {
-        toml::Value::Table(table) => table,
+    let mut deps_and_remaps = match remap_file.parse::<TomlValue>()? {
+        TomlValue::Table(table) => table,
         value => {
             error!("The remap-toml file has to parse into a table.");
             return Err(CliError::TomlContentError(value, "table"));
@@ -32,12 +29,12 @@ fn read_remap_file(
         .remove("dependencies")
         .expect("dependencies not found in remap file")
     {
-        toml::Value::Table(table) => table,
+        TomlValue::Table(table) => table,
         value => {
             return Err(CliError::TomlContentError(value, "table"));
         }
     };
-    let remaps: toml::map::Map<String, toml::Value> = deps_and_remaps.into();
+    let remaps: TomlMap<String, TomlValue> = deps_and_remaps.into();
 
     Ok((deps, remaps))
 }
@@ -47,11 +44,6 @@ pub fn do_work(cfg: &Config) -> Result<()> {
 
     match &cfg.transpile_unit {
         TranspileUnit::File(p) => {
-            let deps_and_remaps = match &cfg.remap_file {
-                Some(f) => Some(read_remap_file(f)?),
-                None => None,
-            };
-
             let transpiled = TranspileFileBuilder::new(p).config(t_cfg).transpile()?;
             let transpiled = if cfg.line_numbers {
                 add_line_nbs(&transpiled.rust_target)
@@ -87,15 +79,24 @@ pub fn transpile_module(
 ) -> Result<()> {
     let module_input_path = path.as_ref();
 
-    let deps_and_remaps = match &cfg.remap_file {
-        Some(f) => Some(read_remap_file(f)?),
-        None => None,
+    let (deps, remap) = match &cfg.remap_file {
+        Some(f) => {
+            let (deps, remap) = read_remap_file(f)?;
+            (Some(deps), Some(remap))
+        }
+        None => (None, None),
     };
 
-    let mut transpiled = TranspileModuleBuilder::new(&module_input_path)
-        .config(t_cfg)
-        .remap(remap_file)
-        .transpile()?;
+    let mut builder = TranspileModuleBuilder::new(&module_input_path).config(t_cfg);
+
+    if let Some(dep_map) = deps {
+        builder = builder.set_dep_map(dep_map);
+    }
+    if let Some(remap) = remap {
+        builder = builder.set_remap(remap);
+    }
+
+    let mut transpiled = builder.transpile()?;
 
     // Add line numbers if necessary
     transpiled.files_mut().iter_mut().for_each(|file| {
