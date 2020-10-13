@@ -99,16 +99,16 @@ fn resolve_args(matches: &clap::ArgMatches) -> Result<Config> {
         match &target {
             TranspileUnit::File(fpath) => {
                 if let Some(parent) = fpath.parent() {
-                    detect("Remap.toml", parent)?
+                    detect("Remap.toml", parent)
                 } else {
                     // No parent for file -> return None
                     None
                 }
             }
             TranspileUnit::Module(dirpath) => {
-                detect("Remap.toml", &dirpath)?.or({
+                detect("Remap.toml", &dirpath).or({
                     if let Some(parent) = dirpath.parent() {
-                        detect("Remap.toml", parent)?
+                        detect("Remap.toml", parent)
                     }
                     else {
                         None
@@ -153,17 +153,17 @@ pub struct Config {
 }
 
 /// Detects and returns the path of a file or a directory in the given path
-fn detect(look_for: &str, in_dir: impl AsRef<path::Path>) -> Result<Option<path::PathBuf>> {
+fn detect(look_for: &str, in_dir: impl AsRef<path::Path>) -> Option<path::PathBuf> {
     let in_dir = in_dir.as_ref();
     if !in_dir.is_dir() {
-        return Err(CliError::PathIsFile(format!("{:?}", in_dir)));
+        return None;
     }
 
     let tgt = in_dir.join(look_for);
     if tgt.exists() {
-        Ok(Some(tgt))
+        Some(tgt)
     } else {
-        Ok(None)
+        None
     }
 }
 
