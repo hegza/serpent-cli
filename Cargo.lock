@@ -1447,6 +1447,7 @@ dependencies = [
 [[package]]
 name = "rustpython-parser"
 version = "0.1.2"
+source = "git+https://github.com/hegza/rustpython?branch=serpent#0d87b50741747b008fa52b2d83f1438f98dcc9a0"
 dependencies = [
  "lalrpop",
  "lalrpop-util",
