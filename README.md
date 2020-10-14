@@ -1,3 +1,7 @@
+## Installation
+- The tool requires libssh to be installed on the system: `sudo apt-get install libssh-dev`.
+- `cargo install --path .`
+
 ## Developer notes
 This CLI includes the `serpent` library from an adjacent directory. This directory must exist
 parallel to the serpent tool like so:
