@@ -97,7 +97,7 @@ pub fn emit_manifest(
         ncontent.push(line);
         ncontent.push("\n");
         if line.contains("[package]") {
-            ncontent.push("edition =\"2018\"\n");
+            ncontent.push("edition = \"2018\"\n");
         }
     }
     let content = ncontent.concat();
