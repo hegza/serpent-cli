@@ -90,6 +90,17 @@ pub fn emit_manifest(
 
     let content = format!("{}", cargo_toml.build()?);
 
+    // Insert `edition = "2018"`
+    let mut ncontent = vec![];
+    let mut lines = content.lines();
+    while let Some(line) = lines.next() {
+        ncontent.push(line);
+        if line.contains("[package]") {
+            ncontent.push("edition =\"2018\"");
+        }
+    }
+    let content = ncontent.join("\n");
+
     use super::write_file;
     write_file(manifest_filepath, &content)
 }
