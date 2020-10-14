@@ -95,11 +95,12 @@ pub fn emit_manifest(
     let mut lines = content.lines();
     while let Some(line) = lines.next() {
         ncontent.push(line);
+        ncontent.push("\n");
         if line.contains("[package]") {
-            ncontent.push("edition =\"2018\"");
+            ncontent.push("edition =\"2018\"\n");
         }
     }
-    let content = ncontent.join("\n");
+    let content = ncontent.concat();
 
     use super::write_file;
     write_file(manifest_filepath, &content)
