@@ -98,6 +98,7 @@ fn resolve_args(matches: &clap::ArgMatches) -> Result<Config> {
     else if !matches.is_present("no-remap") {
         match &target {
             TranspileUnit::File(fpath) => {
+                let fpath = fs::canonicalize(fpath)?;
                 if let Some(parent) = fpath.parent() {
                     detect("Remap.toml", parent)
                 } else {
@@ -106,6 +107,7 @@ fn resolve_args(matches: &clap::ArgMatches) -> Result<Config> {
                 }
             }
             TranspileUnit::Module(dirpath) => {
+                let dirpath = fs::canonicalize(dirpath)?;
                 detect("Remap.toml", &dirpath).or({
                     if let Some(parent) = dirpath.parent() {
                         detect("Remap.toml", parent)
