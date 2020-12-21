@@ -40,7 +40,7 @@ pub fn emit_manifest(
     use cargo_toml_builder::prelude::*;
 
     let mut cargo_toml = CargoToml::builder();
-    cargo_toml.author("automatically transpiled by serpent");
+    cargo_toml.author("automatically transpiled with serpent");
 
     // Generate a name
     let name = format!(
