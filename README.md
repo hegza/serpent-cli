@@ -1,3 +1,6 @@
+## Notes to everyone
+- Add `-v` flags after subcommand (`e.g. serpent tp -vv source_dir -o out_dir`) to add more debug information.
+
 ## Installation
 - The tool requires libssh to be installed on the system: `sudo apt-get install libssh-dev`.
 - `cargo install --path .`
