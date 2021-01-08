@@ -1447,6 +1447,7 @@ dependencies = [
 [[package]]
 name = "serpent"
 version = "0.1.0"
+source = "git+https://github.com/hegza/serpent-rs#be8fad2804259550e03bd57ec4f5b8ece563d151"
 dependencies = [
  "color-backtrace",
  "ctor",

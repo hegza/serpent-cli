@@ -9,8 +9,7 @@ name = "serpent"
 path = "src/main.rs"
 
 [dependencies]
-#serpent = { git = "https://github.com/hegza/serpent-rs" }
-serpent = {path = "../serpent-rs"}
+serpent = { git = "https://github.com/hegza/serpent-rs" }
 # Must match with rustc_ast version in serpent: "673.0.0"
 rustc-ap-rustc_span = "694.0.0"
 
