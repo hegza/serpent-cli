@@ -264,9 +264,9 @@ dependencies = [
 
 [[package]]
 name = "color-backtrace"
-version = "0.3.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "65d13f1078cc63c791d0deba0dd43db37c9ec02b311f10bed10b577016f3a957"
+checksum = "54d692cadb16939b888c8232945dec39372207dd6893d19f536e318d14dc1468"
 dependencies = [
  "atty",
  "backtrace",
@@ -460,9 +460,9 @@ dependencies = [
 
 [[package]]
 name = "env_logger"
-version = "0.6.2"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aafcde04e90a5226a6443b7aabdb016ba2f8307c847d524724bd9b346dd1a2d3"
+checksum = "44533bbbb3bb3c1fa17d9f2e4e38bbbaf8396ba82193c4cb1b6445d711445d36"
 dependencies = [
  "atty",
  "humantime",
@@ -628,6 +628,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "itertools"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "37d572918e350e82412fe766d24b15e6682fb2ed2bbe018280caa810397cb319"
+dependencies = [
+ "either",
+]
+
+[[package]]
 name = "itoa"
 version = "0.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -664,7 +673,7 @@ dependencies = [
  "diff",
  "docopt",
  "ena",
- "itertools",
+ "itertools 0.9.0",
  "lalrpop-util",
  "petgraph",
  "regex 1.4.2",
@@ -915,12 +924,11 @@ checksum = "925383efa346730478fb4838dbe9137d2a47675ad789c546d150a6e1dd4ab31c"
 
 [[package]]
 name = "pretty_env_logger"
-version = "0.3.1"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "717ee476b1690853d222af4634056d830b5197ffd747726a9a1eee6da9f49074"
+checksum = "926d36b9553851b8b0005f1275891b392ee4d2d833852c417ed025477350fb9d"
 dependencies = [
- "chrono",
- "env_logger 0.6.2",
+ "env_logger 0.7.1",
  "log 0.4.11",
 ]
 
@@ -1500,7 +1508,7 @@ dependencies = [
  "ctor",
  "derive_deref",
  "fs-err",
- "itertools",
+ "itertools 0.10.0",
  "lazy_static",
  "log 0.4.11",
  "normalize-line-endings",
@@ -1525,7 +1533,7 @@ dependencies = [
  "clap",
  "flexi_logger",
  "fs-err",
- "itertools",
+ "itertools 0.10.0",
  "log 0.4.11",
  "rustc-ap-rustc_span",
  "serpent",
