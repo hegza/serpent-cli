@@ -1,24 +1,25 @@
 [package]
-name = "serpent-cli"
-version = "0.1.0"
 authors = ["Henri Lunnikivi <henri.lunnikivi@gmail.com>"]
 edition = "2018"
+name = "serpent-cli"
+version = "0.1.0"
 
 [[bin]]
 name = "serpent"
 path = "src/main.rs"
 
 [dependencies]
-serpent = { git = "https://github.com/hegza/serpent-rs" }
+#serpent = { git = "https://github.com/hegza/serpent-rs" }
+serpent = {path = "../serpent-rs"}
 # Must match with rustc_ast version in serpent: "673.0.0"
 rustc-ap-rustc_span = "694.0.0"
 
-clap = "^2.33"
-thiserror = "^1.0"
 anyhow = "1.0.32"
-itertools = "0.9.0"
-log = "0.4.11"
+cargo-toml-builder = "0.3.0"
+clap = "^2.33"
 flexi_logger = "0.16.1"
 fs-err = "2.5.0"
+itertools = "0.9.0"
+log = "0.4.11"
+thiserror = "^1.0"
 toml = "0.5.6"
-cargo-toml-builder = "0.3.0"
